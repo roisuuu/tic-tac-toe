@@ -16,15 +16,22 @@ import './index.css';
       this.state = {
         squares: Array(9).fill(null),
         xIsNext: true,
+        counter: 0,
       };
     }
 
     handleClick(i) {
       const squares = this.state.squares.slice();
+      if (calculateWinner(squares) || squares[i]) {
+        // if a winner has been declared OR the square has been taken already
+        return;
+      }
+
       squares[i] = this.state.xIsNext ? 'X': 'O';
       this.setState({
         squares: squares, // what? TODO: ask kenneth wtf this is
         xIsNext: !this.state.xIsNext,
+        counter: this.state.counter + 1,
       }); 
 
     }
@@ -39,7 +46,16 @@ import './index.css';
     }
   
     render() {
-      const status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      const winner = calculateWinner(this.state.squares);
+      let status;
+      if (winner) {
+        status = 'Winner: ' + winner;
+      } else if (this.state.counter === 9) {
+        status = 'No winner: Tie Game'
+      } else {
+        // no winner yet
+        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      }
   
       return (
         <div>
@@ -86,4 +102,29 @@ import './index.css';
     <Game />,
     document.getElementById('root')
   );
+
+  // function checks if there is a winner on the board
+  function calculateWinner(squares) {
+    // the lines that mean a win
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      // having squares[a] as the first condition ensures the row isn't null
+      if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
+        return squares[a];
+      }
+    }
+
+    return null;
+  }
   
