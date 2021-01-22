@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
@@ -10,74 +10,73 @@ import './index.css';
     )
   }
 
-  class Board extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        squares: Array(9).fill(null),
-        xIsNext: true,
-        counter: 0,
-      };
-    }
+  function Board() {
+    // using hooks to store squares, xIsNext and counter
+    const [squares, setSquares] = useState(Array(9).fill(null));
+    const [xIsNext, changeTurn] = useState(true);
+    const [counter, setCounter] = useState(0);
 
-    handleClick(i) {
-      const squares = this.state.squares.slice();
-      if (calculateWinner(squares) || squares[i]) {
+    function handleClick(i) {
+      const squaresNew = squares.slice();
+      if (calculateWinner(squaresNew) || squaresNew[i]) {
         // if a winner has been declared OR the square has been taken already
         return;
       }
 
-      squares[i] = this.state.xIsNext ? 'X': 'O';
-      this.setState({
-        squares: squares, // what? TODO: ask kenneth wtf this is
-        xIsNext: !this.state.xIsNext,
-        counter: this.state.counter + 1,
-      }); 
+      squaresNew[i] = xIsNext ? 'X': 'O';
+    //   this.setState({
+    //     squares: squares, // what? TODO: ask kenneth wtf this is
+    //     xIsNext: !this.state.xIsNext,
+    //     counter: this.state.counter + 1,
+    //   }); 
+
+      // using hooks isntead of this.setState
+      setSquares(squaresNew);
+      changeTurn(!xIsNext);
+      setCounter(prevCount => prevCount + 1);
 
     }
 
-    renderSquare(i) {
+    function renderSquare(i) {
       return (
             <Square 
-              value={this.state.squares[i]}
-              onClick={() => this.handleClick(i)}
+              value={squares[i]}
+              onClick={() => handleClick(i)}
             />
       );
     }
   
-    render() {
-      const winner = calculateWinner(this.state.squares);
-      let status;
-      if (winner) {
-        status = 'Winner: ' + winner;
-      } else if (this.state.counter === 9) {
-        status = 'No winner: Tie Game'
-      } else {
-        // no winner yet
-        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-      }
-  
-      return (
-        <div>
-          <div className="status">{status}</div>
-          <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-          </div>
-        </div>
-      );
+    const winner = calculateWinner(squares);
+    let status;
+    if (winner) {
+    status = 'Winner: ' + winner;
+    } else if (counter === 9) {
+    status = 'No winner: Tie Game'
+    } else {
+    // no winner yet
+    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
     }
+
+    return (
+    <div>
+        <div className="status">{status}</div>
+        <div className="board-row">
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
+        </div>
+        <div className="board-row">
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+        </div>
+        <div className="board-row">
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+        </div>
+    </div>
+    );
   }
   
   class Game extends React.Component {
